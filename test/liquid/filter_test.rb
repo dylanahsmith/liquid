@@ -18,7 +18,7 @@ end
 
 module SubstituteFilter
   def substitute(input, params={})
-    input % Hash[params.map{|k,v| [k.to_sym, v] }]
+    input.gsub(/%\{(\w+)\}/) { |match| params[$1] }
   end
 end
 
