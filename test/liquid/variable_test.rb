@@ -109,9 +109,10 @@ class VariableTest < Test::Unit::TestCase
   end
 
   def test_filter_with_keyword_arguments
-    var = Variable.new(%! hello | things: greeting: "world", farewell: 'goodbye'!)
-    assert_equal 'hello', var.name
-    assert_equal [['things',["greeting: \"world\"","farewell: 'goodbye'"]]], var.filters
+    # Temporarily reverting support for this
+    var = Variable.new(%! number_of_comments | pluralize: 'comment': 'comments' !)
+    assert_equal 'number_of_comments', var.name
+    assert_equal [['pluralize', ["'comment'","'comments'"]]], var.filters
   end
 end
 

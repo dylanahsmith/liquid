@@ -23,9 +23,9 @@ module Liquid
         if match[2].match(/#{FilterSeparator}\s*(.*)/o)
           filters = Regexp.last_match(1).scan(FilterParser)
           filters.each do |f|
-            if matches = f.match(/\s*(\w+)(?:\s*#{FilterArgumentSeparator}(.*))?/)
+            if matches = f.match(/\s*(\w+)/)
               filtername = matches[1]
-              filterargs = matches[2].to_s.scan(/(?:\A|#{ArgumentSeparator})\s*((?:\w+\s*\:\s*)?#{QuotedFragment})/o).flatten
+              filterargs = f.scan(/(?:#{FilterArgumentSeparator}|#{ArgumentSeparator})\s*(#{QuotedFragment})/o).flatten
               @filters << [filtername, filterargs]
             end
           end
@@ -36,16 +36,9 @@ module Liquid
     def render(context)
       return '' if @name.nil?
       @filters.inject(context[@name]) do |output, filter|
-        filterargs = []
-        keyword_args = {}
-        filter[1].to_a.each do |a|
-          if matches = a.match(/\A#{TagAttributes}\z/o)
-            keyword_args[matches[1]] = context[matches[2]]
-          else
-            filterargs << context[a]
-          end
+        filterargs = filter[1].to_a.collect do |a|
+          context[a]
         end
-        filterargs << keyword_args unless keyword_args.empty?
         begin
           output = context.invoke(filter[0], output, *filterargs)
         rescue FilterNotFound
